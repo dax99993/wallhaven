@@ -5,7 +5,7 @@ pub fn get_key(path: &str) -> Option<String> {
     let api = 
     match std::fs::read_to_string(path) {
         Ok(f) => f,
-        Err(e) => { println!("No stored API in {}: {:?}.",path, e);
+        Err(e) => { println!("Cannot read/access API User key in {}: {:?}.",path, e);
             return None;
         },
     };

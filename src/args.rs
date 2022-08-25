@@ -6,12 +6,14 @@ use crate::api;
 version,
 about = "Download wallpapers from WallHaven.cc with custom settings",
 long_about = "A CLI for quickly access WallHaven API for downloading wallpapers, according
-to preferences, with optional use of api key for remembering the preferences and access NSFW wallpapers."
+to preferences, with optional use of API key for remembering the preferences and access NSFW wallpapers.
+
+Thanks to Bugswriter for the idea."
 )]
 pub struct Args {
     /// Path To Save Wallpapers
     #[clap(short = 'p', long, verbatim_doc_comment)]
-    #[clap(required_unless_present = "set-api")]
+    #[clap(required_unless_present = "set-user-key")]
     #[clap(default_value = ".")]
     pub path: String,
 
@@ -27,18 +29,26 @@ pub struct Args {
     ///    like:wallpaper ID - Find wallpapers with similar tags
     ///
     ///    Ex. "anime +city -mountain type:png"
-    #[clap(short = 'q', long, verbatim_doc_comment)]    
-    #[clap(default_value = "")]
-    #[clap(required_unless_present_any = ["colors", "set-api"])]
+    #[clap(short = 'q',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Search method"),
+           default_value = "",
+           required_unless_present_any = ["colors", "set-user-key"],
+    )]
     query: String,
 
     /// Categories
     ///
     ///    Turn Categories on(1) Or Off(0)
     ///    (general/anime/people).
-    #[clap(short = 'c', long, verbatim_doc_comment)]    
-    #[clap(value_parser = ["100", "101", "110", "111"] )]
-    #[clap(default_value = "111")]
+    #[clap(short = 'c',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Search Preferences"),
+           default_value = "111",
+           value_parser = ["100", "101", "110", "111"],
+    )]
     categories: String,
 
     /// Purity
@@ -46,99 +56,151 @@ pub struct Args {
     ///    Turn Purities On(1) Or Off(0)
     ///    *NSFW Requires A Valid API Key*
     ///    (sfw/sketchy/nsfw).
-    #[clap(short = 'x', long, verbatim_doc_comment)]    
-    #[clap(value_parser = ["100", "101", "110", "111"] )]
-    #[clap(default_value = "100")]
+    #[clap(short = 'x',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Search Preferences"),
+           default_value = "100",
+           value_parser = ["100", "101", "110", "111"],
+    )]
     purity: String,
 
     /// Sorting 
     ///
-    #[clap(short = 's', long, verbatim_doc_comment)]    
-    #[clap(value_parser = ["DATE_ADDED", "RELEVANCE", "RANDOM", "VIEWS", "FAVORITES", "TOPLIST"] )]
-    #[clap(default_value = "DATE_ADDED")]
-    #[clap(ignore_case = true)]
+    #[clap(short = 's',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Sorting Preferences"),
+           ignore_case = true,
+           default_value = "DATE_ADDED",
+           value_parser = ["DATE_ADDED", "RELEVANCE", "RANDOM", "VIEWS", "FAVORITES", "TOPLIST"],
+    )]
     sorting: String,
 
     /// Sorting order 
     ///
-    #[clap(short = 'o', long, verbatim_doc_comment)]    
-    #[clap(value_parser = ["ASC", "DESC"])]
-    #[clap(default_value = "DESC")]
-    #[clap(ignore_case = true)]
+    #[clap(short = 'o',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Sorting Preferences"),
+           ignore_case = true,
+           default_value = "DESC",
+           value_parser = ["ASC", "DESC"],
+    )]
     order: String,
 
     /// Range Of Search
     ///
     ///    Sorting MUST Be Set To 'TOPLIST'
-    #[clap(short = 't', long, verbatim_doc_comment)]    
-    #[clap(value_parser = ["1D", "3D", "1W", "1M", "3M", "6M", "1Y"])]
-    #[clap(default_value = "1M")]
-    #[clap(ignore_case = true)]
+    #[clap(short = 't',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Sorting Preferences"),
+           ignore_case = true,
+           default_value = "1M",
+           value_parser = ["1D", "3D", "1W", "1M", "3M", "6M", "1Y"],
+    )]
     toprange: String,
 
     /// Atleast
     ///
     ///    Set The Minimum Resolution Allowed
     ///    Ex. 1920x1080.
-    #[clap(short = 'a', long, verbatim_doc_comment)]    
-    #[clap(default_value = "")]
+    #[clap(short = 'a',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Wallpaper Preferences"),
+           default_value = "",
+    )]
     atleast: String,
 
     /// Resolutions
     ///
     ///    List Of Exact Wallpaper Resolutions
     ///    Single Resolution Allowed.
-    #[clap(short = 'r', long, verbatim_doc_comment)]    
-    #[clap(default_value = "1920x1080,1920x1200")]
+    #[clap(short = 'r',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Wallpaper Preferences"),
+           default_value = "1920x1080,1920x1200",
+    )]
     resolutions: String,
 
     /// Ratios
     ///
     ///    List Of Aspect Ratios
     ///    Single Ratio Allowed.
-    #[clap(short = 'R', long, verbatim_doc_comment)]    
-    #[clap(default_value = "16x9,16x10")]
+    #[clap(short = 'R',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Wallpaper Preferences"),
+           default_value = "16x9,16x10",
+    )]
     ratios: String,
 
     /// Color
     ///
     ///    Search By Hex Color
     ///    Ex.  --colors 0066cc
-    #[clap(short = 'C', long, verbatim_doc_comment)]    
-    #[clap(default_value = "")]
-    #[clap(required_unless_present_any = ["query", "set-api"])]
+    #[clap(short = 'C',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Search method"),
+           default_value = "",
+           required_unless_present_any = ["query", "set-user-key"],
+    )]
     colors: String,
 
     /// Page 
     ///
     ///    Select Page Of Results
     ///    (1..)
-    #[clap(short = 'P', long, verbatim_doc_comment)]    
-    #[clap(value_parser = clap::value_parser!(u32).range(1..))]
-    #[clap(default_value_t = 1)] 
+    #[clap(short = 'P',
+           long,
+           verbatim_doc_comment,
+           help_heading = Some("Search Preferences"),
+           default_value_t = 1,
+           value_parser = clap::value_parser!(u32).range(1..),
+    )]
     page: u32,
 
-    /// Set API Key
+    /// Set API User Key
     ///
-    ///    Set API Key For Future Quering With User Preferences
+    ///    Set API User Key For Future Quering With User Preferences
     ///    (categories, purity, resolutions, ratios and toprange).
-    #[clap(short = 'S', long = "set-api", verbatim_doc_comment)]    
-    #[clap(default_value = "")] 
-    pub set_api: String,
-
-    /// Overwrite API Wallpaper Preferences 
     ///
-    ///    Query With API Access But Using Given Wallpaper Preferences.
-    #[clap(short = 'n', long = "no-api-settings", verbatim_doc_comment)]    
-    #[clap(takes_value = false)]
+    ///    API key written to ~/.wallhaven
+    #[clap(short = 'S',
+           long = "set-user-key",
+           verbatim_doc_comment,
+           help_heading = Some("API User"),
+           value_name = "API KEY",
+           default_value = "",
+    )] 
+    pub set_user_key: String,
+
+
+    /// Overwrite User Wallpaper Preferences 
+    ///
+    ///    Search With API User Key Access But Using Given Search, Sorting And Wallpaper Preferences.
+    #[clap(short = 'n',
+           long = "no-account-preferences",
+           verbatim_doc_comment,
+           help_heading = Some("API User"),
+           takes_value = false,
+    )]
     no_api_settings: bool,
 
 
-    /// Ignore API Key 
+    /// Ignore API User Key 
     ///
-    ///    Query with non-user access
-    #[clap(short = 'i', long = "ignore-api", verbatim_doc_comment)]    
-    #[clap(takes_value = false)]
+    ///    Search With Non-User Access Using Given Preferences
+    #[clap(short = 'i',
+           long = "ignore-api-key",
+           help_heading = Some("API User"),
+           verbatim_doc_comment,
+           takes_value = false,
+    )]
     ignore_api: bool,
 }
 
@@ -165,13 +227,13 @@ pub fn create_url(args: Args, api_path: &str) -> String {
 
     /* Method of requesting wallpapers Message */
     if args.no_api_settings && !args.ignore_api {
-        println!("Overwriting Default API Preferences!.");
+        println!("Overwriting Default API User Preferences!.");
     }
     if args.ignore_api {
-        println!("Ignoring API Key, Using Default Non-User Access and Preferences!.");
+        println!("Ignoring API User Key, Using Default Non-User Access and Preferences!.");
     }
     if api == "" {
-        println!("Invalid API key!, Using Default Non-User Access and Preferences!.");
+        println!("Invalid or Non-existing API User Key!, Using Default Non-User Access and Preferences!.");
     }
     
     /* Add fields when using invalid API key or

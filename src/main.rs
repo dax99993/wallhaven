@@ -17,13 +17,13 @@ async fn main() -> Result<(), reqwest::Error> {
     let api_path = shellexpand::tilde("~/.wallhaven").to_string();
 
     let args = Args::parse();
-    println!("{:#?}", args);
+    //println!("{:#?}", args);
 
     /* Set API if possible and exit */
-    if args.set_api != "" {
-        match api::save_key(&api_path, &args.set_api) {
+    if args.set_user_key != "" {
+        match api::save_key(&api_path, &args.set_user_key) {
             Ok(()) => (),
-            Err(e) => println!("Error: {}", e),
+            Err(e) => eprintln!("Error: {}", e),
         }
         return Ok(());
     }
@@ -45,6 +45,7 @@ async fn main() -> Result<(), reqwest::Error> {
                     .unwrap();
     //eprintln!("Response: {:#?}", response);
     
+    /* Check for correct response */
     let api_response =
     match response.status() {
         reqwest::StatusCode::OK => {
