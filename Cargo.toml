@@ -8,7 +8,7 @@ description = "A complete WallHaven API CLI client, allowing wallpaper download"
 readme = "README.md"
 repository = "https://github.com/dax99993/wallhaven"
 
-keywords = ["graphics", "cli", "image", "wallpaper", "api", "wallhaven", "download"]
+keywords = ["graphics", "cli", "image", "wallpaper", "api", "wallhaven"]
 categories = ["graphics", "command-line-utilities", "api-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
