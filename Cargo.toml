@@ -1,10 +1,10 @@
 [package]
 name = "wallhaven"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Dax99993"]
 license = "MIT"
-description = "A CLI for quickly access WallHaven API for downloading wallpapers"
+description = "A WallHaven API client CLI allowing for downloading wallpapers"
 readme = "README.md"
 repository = "https://github.com/dax99993/wallhaven"
 
@@ -19,6 +19,6 @@ futures = "0.3.23"
 indicatif = "0.17.0"
 reqwest = { version = "0.11.11", features = ["json", "stream"] }
 serde = { version = "1.0.144", features = ["derive"] }
-shellexpand = "2.1.2"
-strum = { version = "0.25.0", features = ["derive"] }
+serde-aux = "4.5.0"
+serde_json = "1.0.115"
 tokio = { version = "1.20.1", features = ["full"] }
